@@ -8,6 +8,32 @@ class Song
     self.to_s.downcase.pluralize
   end
 
+  def self.all
+    sql = <<-SQL
+      SELECT * FROM #{self.table_name};
+    SQL
+
+    rows = self.db.execute(sql)
+    rows.map do |row|
+      self.new
+
+    end
+  ##NOT DONE YET
+  end
+
+
+  def self.create_table
+    sql = <<-SQL
+      CREATE TABLE IF NOT NOT EXISTS #{table_name}(
+        ATTRIBUTES.map do |k,v|
+          "#{k} #{v}"
+        end.join(",")
+      end)
+    SQL
+
+  end
+
+
   def self.column_names
     DB[:conn].results_as_hash = true
 
@@ -28,6 +54,9 @@ class Song
   def initialize(options={})
     options.each do |property, value|
       self.send("#{property}=", value)
+
+
+
     end
   end
 
@@ -60,5 +89,23 @@ class Song
 
 end
 
+
+PRIVATE
+#NOTES FROM 06/22
+def initialize(attributes={})
+  @id = attributes.delete[:id] 
+  #will first return the ID (only once) and then throw the pair away
+  #becaues when you want to iterate through it WITHOUT the id
+  #also don't want to change the id - no methods for id so you cant do book.id = '1' 
+  #can only set it at initialization
+  attributes.each do |attribute, value|
+    self.send("#{attribute}=") value
+    #you gotta do send("#{}="), can't just do self.attr because that's not a method you can call
+    #MUST HAVE THAT = SIGN
+    #must use string interpolation because otherwise you will be literally passing through attribute=
+    #but you actually want to call title=
+  end
+
+end
 
 
